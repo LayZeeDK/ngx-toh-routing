@@ -1,10 +1,10 @@
-import { Component, OnInit }  from '@angular/core';
-import { ActivatedRoute }     from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
-import { CrisisService }  from '../crisis.service';
-import { Crisis }         from '../crisis';
-import { Observable }     from 'rxjs';
-import { switchMap }      from 'rxjs/operators';
+import { Crisis } from '../crisis';
+import { CrisisService } from '../crisis.service';
 
 @Component({
   selector: 'app-crisis-list',
@@ -18,9 +18,10 @@ export class CrisisListComponent implements OnInit {
   constructor(
     private service: CrisisService,
     private route: ActivatedRoute
-  ) {}
+  ) { }
 
   ngOnInit() {
+    console.log('CrisisList route', this.route);
     this.crises$ = this.route.paramMap.pipe(
       switchMap(params => {
         this.selectedId = +params.get('id');

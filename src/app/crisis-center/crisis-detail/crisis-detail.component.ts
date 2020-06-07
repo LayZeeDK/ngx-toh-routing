@@ -1,9 +1,9 @@
-import { Component, OnInit, HostBinding } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
-import { Crisis }         from '../crisis';
-import { DialogService }  from '../../dialog.service';
+import { DialogService } from '../../dialog.service';
+import { Crisis } from '../crisis';
 
 @Component({
   selector: 'app-crisis-detail',
@@ -18,9 +18,10 @@ export class CrisisDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     public dialogService: DialogService
-  ) {}
+  ) { }
 
   ngOnInit() {
+    console.log('CrisisDetail route', this.route);
     this.route.data
       .subscribe((data: { crisis: Crisis }) => {
         this.editName = data.crisis.name;
