@@ -1,3 +1,5 @@
+import { Location } from '@angular/common';
+import { SpyLocation } from '@angular/common/testing';
 import { Component, Injectable, ViewChild } from '@angular/core';
 import {
   ComponentFixture,
@@ -5,6 +7,7 @@ import {
   TestBed,
   tick,
 } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import {
   ActivatedRouteSnapshot,
   Resolve,
@@ -18,7 +21,6 @@ import { findValueDeep } from 'deepdash-es/standalone';
 
 import { Crisis } from './crisis';
 import { CrisisCenterModule } from './crisis-center.module';
-import { CrisisCenterComponent } from './crisis-center/crisis-center.component';
 import { CrisisDetailComponent } from './crisis-detail/crisis-detail.component';
 import { CRISES } from './mock-crises';
 
@@ -41,13 +43,12 @@ export class FakeCrisisDetailResolverService implements Resolve<Crisis> {
   constructor(private router: Router) { }
 
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Crisis | undefined {
-    const id = route.paramMap.get('id');
+    const id = Number.parseInt(route.paramMap.get('id'), 10);
 
-    const maybeCrisis = CRISES.find(crisis =>
-      crisis.id === Number.parseInt(id, 10));
+    const maybeCrisis = CRISES.find(crisis => crisis.id === id);
 
     if (maybeCrisis === undefined) {
-      this.router.navigate(['/crisis-center']);
+      this.router.navigate(['/']);
     }
 
     return maybeCrisis;
@@ -60,6 +61,10 @@ describe('Crisis center', () => {
     rootFixture.detectChanges();
   }
 
+  function navigateById(id: number) {
+    return rootFixture.ngZone.run(() => router.navigate([id]));
+  }
+
   beforeEach(async () => {
     TestBed.configureTestingModule({
       declarations: [
@@ -68,6 +73,17 @@ describe('Crisis center', () => {
       imports: [
         CrisisCenterModule,
         RouterTestingModule,
+        // RouterTestingModule.withRoutes([
+        //   {
+        //     path: 'crisis-center',
+        //     loadChildren: () => CrisisCenterRoutingModule,
+        //   },
+        //   {
+        //     path: '',
+        //     pathMatch: 'full',
+        //     redirectTo: 'crisis-center',
+        //   }
+        // ]),
       ],
     });
 
@@ -75,6 +91,9 @@ describe('Crisis center', () => {
 
     rootFixture = TestBed.createComponent(TestRootComponent);
     router = TestBed.inject(Router);
+    navigateSpy = router.navigate = jasmine.createSpy('Router#navigate', router.navigate)
+      .and.callThrough();
+    location = TestBed.inject(Location) as SpyLocation;
   });
 
   beforeEach(fakeAsync(() => {
@@ -98,15 +117,42 @@ describe('Crisis center', () => {
     advance();
   }));
 
+  let location: SpyLocation;
+  let navigateSpy: jasmine.Spy;
   let rootFixture: ComponentFixture<TestRootComponent>;
   let router: Router;
 
-  it('does something', fakeAsync(() => {
+  it('shows crisis detail when a valid ID is in the URL', fakeAsync(() => {
     const [firstCrisis] = CRISES;
 
-    router.navigate([firstCrisis.id]);
+    navigateById(firstCrisis.id);
     advance();
 
-    expect(rootFixture.componentInstance.getActiveComponent()).toBeInstanceOf(CrisisCenterComponent);
+    const crisisTitle =
+      rootFixture.debugElement.query(By.css('h3'));
+    expect(crisisTitle.nativeElement.textContent).toContain(firstCrisis.name);
+  }));
+
+  it('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(() => {
+    navigateById(0);
+    advance();
+
+    const message =
+      rootFixture.debugElement.query(By.css('p'));
+    expect(message.nativeElement.textContent)
+      .toContain('Welcome to the Crisis Center');
+  }));
+
+  it('navigates to the crisis center home when canceling crisis detail edit', fakeAsync(() => {
+    const [firstCrisis] = CRISES;
+    navigateById(firstCrisis.id);
+    advance();
+    const cancelButton = rootFixture.debugElement.queryAll(By.css('button'))
+      .find(button => button.nativeElement.textContent.trim() === 'Cancel');
+
+    cancelButton.triggerEventHandler('click', { button: 0 });
+    advance();
+
+    expect(location.path()).toBe('/');
   }));
 });
