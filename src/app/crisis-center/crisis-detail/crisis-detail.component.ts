@@ -21,7 +21,6 @@ export class CrisisDetailComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    console.log('CrisisDetail route', this.route);
     this.route.data
       .subscribe((data: { crisis: Crisis }) => {
         this.editName = data.crisis.name;

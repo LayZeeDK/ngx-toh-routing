@@ -2892,6 +2892,13 @@ deep-equal@^1.0.1:
     object-keys "^1.1.1"
     regexp.prototype.flags "^1.2.0"
 
+deepdash-es@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/deepdash-es/-/deepdash-es-5.1.1.tgz#44cc119ca0ba23e2d18075b23ce84fa83233de6c"
+  integrity sha512-0p27rj+5a1V5faUGkXE/zK2z4k9hXGpfUZVL28N8FSHGDD2wSKAPHCjHxzQT/Tx1exDbqJnUa9hmfEpDp82HSg==
+  dependencies:
+    lodash-es "^4.17.15"
+
 default-gateway@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/default-gateway/-/default-gateway-4.2.0.tgz#167104c7500c2115f6dd69b0a536bb8ed720552b"
@@ -5077,6 +5084,11 @@ locate-path@^5.0.0:
   integrity sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==
   dependencies:
     p-locate "^4.1.0"
+
+lodash-es@^4.17.15:
+  version "4.17.15"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.15.tgz#21bd96839354412f23d7a10340e5eac6ee455d78"
+  integrity sha512-rlrc3yU3+JNOpZ9zj5pQtxnx2THmvRykwL4Xlxoa8I9lHBlVbbyPhgyPMioxVZ4NqyxaVVtaJnzsyOidQIhyyQ==
 
 lodash.clonedeep@^4.5.0:
   version "4.5.0"
