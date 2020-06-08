@@ -1,6 +1,5 @@
 import { CommonModule, Location } from '@angular/common';
-import { SpyLocation } from '@angular/common/testing';
-import { Component, Injectable, NgZone, ViewChild } from '@angular/core';
+import { Component, Injectable, ViewChild } from '@angular/core';
 import {
   ComponentFixture,
   fakeAsync,
@@ -9,16 +8,10 @@ import {
 } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import {
-  ActivatedRouteSnapshot,
-  Resolve,
-  Route,
-  Router,
-  RouterOutlet,
-  RouterStateSnapshot,
-} from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { findValueDeep } from 'deepdash-es/standalone';
+import { BehaviorSubject } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { Crisis } from './crisis';
 import {
@@ -28,6 +21,7 @@ import { CrisisCenterRoutingModule } from './crisis-center-routing.module';
 import { CrisisCenterComponent } from './crisis-center/crisis-center.component';
 import { CrisisDetailComponent } from './crisis-detail/crisis-detail.component';
 import { CrisisListComponent } from './crisis-list/crisis-list.component';
+import { CrisisService } from './crisis.service';
 import { CRISES } from './mock-crises';
 
 @Component({
@@ -42,25 +36,22 @@ class TestRootComponent {
   }
 }
 
-@Injectable({
-  providedIn: 'root',
-})
-export class FakeCrisisDetailResolverService implements Resolve<Crisis> {
-  constructor(
-    private router: Router,
-    private ngZone: NgZone,
-  ) { }
+@Injectable()
+class FakeCrisisService implements Partial<CrisisService> {
+  private crises$: BehaviorSubject<Crisis[]> = new BehaviorSubject<Crisis[]>(CRISES);
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Crisis | undefined {
-    const id = Number.parseInt(route.paramMap.get('id'), 10);
+  getCrises() {
+    return this.crises$;
+  }
 
-    const maybeCrisis = CRISES.find(crisis => crisis.id === id);
-
-    if (maybeCrisis === undefined) {
-      this.ngZone.run(() => this.router.navigate(['/crisis-center']));
+  getCrisis(id: number | string) {
+    if (typeof id === 'string') {
+      id = Number.parseInt(id, 10);
     }
 
-    return maybeCrisis;
+    return this.getCrises().pipe(
+      map(crises => crises.find(crisis => crisis.id === id)),
+    );
   }
 }
 
@@ -100,21 +91,22 @@ describe('Crisis center', () => {
         CommonModule,
         FormsModule,
         CrisisCenterRoutingModule,
-        RouterTestingModule.withRoutes(
-          [
-            {
-              path: 'crisis-center',
-              loadChildren: () => CrisisCenterRoutingModule,
-            },
-            {
-              path: '',
-              pathMatch: 'full',
-              redirectTo: 'crisis-center',
-            }
-          ],
+        RouterTestingModule.withRoutes([
           {
-            relativeLinkResolution: 'corrected',
-          }),
+            path: 'crisis-center',
+            loadChildren: () => CrisisCenterRoutingModule,
+          },
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: 'crisis-center',
+          }
+        ], {
+          relativeLinkResolution: 'corrected',
+        }),
+      ],
+      providers: [
+        { provide: CrisisService, useClass: FakeCrisisService },
       ],
     });
 
@@ -122,34 +114,15 @@ describe('Crisis center', () => {
 
     rootFixture = TestBed.createComponent(TestRootComponent);
     router = TestBed.inject(Router);
-    navigateSpy = router.navigate = spyOn(router, 'navigate')
-      .and.callThrough();
-    location = TestBed.inject(Location) as SpyLocation;
+    location = TestBed.inject(Location);
   });
 
   beforeEach(fakeAsync(() => {
-    const routes = router.config;
-    const detailRoute: Route = findValueDeep(
-      routes,
-      (route: Route) => route.component === CrisisDetailComponent,
-      {
-        // checkCircular: false,
-        // leavesOnly: childrenPath!==undefined,
-        // pathFormat: 'string',
-        // includeRoot: !_.isArray(obj),
-        childrenPath: ['children'],
-        // rootIsChildren: !includeRoot && _.isArray(obj),
-      });
-    detailRoute.resolve.crisis = FakeCrisisDetailResolverService;
-    router.resetConfig(routes);
-
     rootFixture.ngZone.run(() => router.initialNavigation());
-
     advance();
   }));
 
-  let location: SpyLocation;
-  let navigateSpy: jasmine.Spy;
+  let location: Location;
   let rootFixture: ComponentFixture<TestRootComponent>;
   let router: Router;
 
