@@ -1,5 +1,4 @@
 import { Location } from '@angular/common';
-import { SpyLocation } from '@angular/common/testing';
 import { Component, Injectable, ViewChild } from '@angular/core';
 import {
   ComponentFixture,
@@ -80,7 +79,7 @@ describe('Crisis center', () => {
 
     rootFixture = TestBed.createComponent(TestRootComponent);
     router = TestBed.inject(Router);
-    location = TestBed.inject(Location) as SpyLocation;
+    location = TestBed.inject(Location);
   });
 
   beforeEach(fakeAsync(() => {
@@ -104,7 +103,7 @@ describe('Crisis center', () => {
     advance();
   }));
 
-  let location: SpyLocation;
+  let location: Location;
   let rootFixture: ComponentFixture<TestRootComponent>;
   let router: Router;
 
