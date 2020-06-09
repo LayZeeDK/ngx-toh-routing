@@ -10,17 +10,15 @@ import { By } from '@angular/platform-browser';
 import {
   ActivatedRouteSnapshot,
   Resolve,
-  Route,
   Router,
   RouterOutlet,
   RouterStateSnapshot,
 } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { findValueDeep } from 'deepdash-es/standalone';
 
 import { Crisis } from './crisis';
 import { CrisisCenterModule } from './crisis-center.module';
-import { CrisisDetailComponent } from './crisis-detail/crisis-detail.component';
+import { CrisisDetailResolverService } from './crisis-detail-resolver.service';
 import { CRISES } from './mock-crises';
 
 @Component({
@@ -73,6 +71,9 @@ describe('Crisis center', () => {
         CrisisCenterModule,
         RouterTestingModule,
       ],
+      providers: [
+        { provide: CrisisDetailResolverService, useClass: FakeCrisisDetailResolverService },
+      ],
     });
 
     await TestBed.compileComponents();
@@ -83,21 +84,6 @@ describe('Crisis center', () => {
   });
 
   beforeEach(fakeAsync(() => {
-    const routes = router.config;
-    const detailRoute: Route = findValueDeep(
-      routes,
-      (route: Route) => route.component === CrisisDetailComponent,
-      {
-        // checkCircular: false,
-        // leavesOnly: childrenPath!==undefined,
-        // pathFormat: 'string',
-        // includeRoot: !_.isArray(obj),
-        childrenPath: ['children'],
-        // rootIsChildren: !includeRoot && _.isArray(obj),
-      });
-    detailRoute.resolve.crisis = FakeCrisisDetailResolverService;
-    router.resetConfig(routes);
-
     rootFixture.ngZone.run(() => router.initialNavigation());
 
     advance();
