@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, Injectable, ViewChild } from '@angular/core';
+import { Component, Injectable, NgZone, ViewChild } from '@angular/core';
 import {
   ComponentFixture,
   fakeAsync,
@@ -9,17 +9,55 @@ import {
 import { By } from '@angular/platform-browser';
 import {
   ActivatedRouteSnapshot,
-  Resolve,
   Router,
   RouterOutlet,
   RouterStateSnapshot,
 } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { asapScheduler, BehaviorSubject } from 'rxjs';
+import { map, observeOn } from 'rxjs/operators';
 
 import { Crisis } from './crisis';
 import { CrisisCenterModule } from './crisis-center.module';
 import { CrisisDetailResolverService } from './crisis-detail-resolver.service';
+import { CrisisService } from './crisis.service';
 import { CRISES } from './mock-crises';
+
+@Injectable()
+class FakeCrisisService implements Partial<CrisisService> {
+  private crises$: BehaviorSubject<Crisis[]> = new BehaviorSubject<Crisis[]>(CRISES);
+
+  getCrises() {
+    return this.crises$;
+  }
+
+  getCrisis(id: number | string) {
+    return this.getCrises().pipe(
+      map(crises => crises.find(crisis => crisis.id === +id)),
+      observeOn(asapScheduler),
+    );
+  }
+}
+
+@Injectable()
+export class FakeCrisisDetailResolverService implements Resolve<Crisis> {
+  constructor(
+    private router: Router,
+    private ngZone: NgZone,
+  ) { }
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Crisis | undefined {
+    const id = route.paramMap.get('id');
+
+    const maybeCrisis = CRISES.find(crisis => crisis.id === +id);
+
+    if (maybeCrisis === undefined) {
+      this.ngZone.run(() => this.router.navigate(['/']));
+    }
+
+    return maybeCrisis;
+  }
+}
 
 @Component({
   template: '<router-outlet></router-outlet>',
@@ -30,25 +68,6 @@ class TestRootComponent {
 
   getActiveComponent<T>(): T {
     return this.routerOutlet.component as T;
-  }
-}
-
-@Injectable({
-  providedIn: 'root',
-})
-export class FakeCrisisDetailResolverService implements Resolve<Crisis> {
-  constructor(private router: Router) { }
-
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Crisis | undefined {
-    const id = Number.parseInt(route.paramMap.get('id'), 10);
-
-    const maybeCrisis = CRISES.find(crisis => crisis.id === id);
-
-    if (maybeCrisis === undefined) {
-      this.router.navigate(['/']);
-    }
-
-    return maybeCrisis;
   }
 }
 
@@ -69,9 +88,12 @@ describe('Crisis center', () => {
       ],
       imports: [
         CrisisCenterModule,
-        RouterTestingModule,
+        RouterTestingModule.withRoutes([
+          { path: 'crisis-center', pathMatch: 'full', redirectTo: '/' },
+        ]),
       ],
       providers: [
+        { provide: CrisisService, useClass: FakeCrisisService },
         { provide: CrisisDetailResolverService, useClass: FakeCrisisDetailResolverService },
       ],
     });

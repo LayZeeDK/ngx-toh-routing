@@ -11,13 +11,13 @@ import { By } from '@angular/platform-browser';
 import {
   ActivatedRouteSnapshot,
   Resolve,
-  Route,
   Router,
   RouterOutlet,
   RouterStateSnapshot,
 } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { findValueDeep } from 'deepdash-es/standalone';
+import { asapScheduler, BehaviorSubject } from 'rxjs';
+import { map, observeOn } from 'rxjs/operators';
 
 import { Crisis } from './crisis';
 import {
@@ -25,9 +25,47 @@ import {
 } from './crisis-center-home/crisis-center-home.component';
 import { CrisisCenterRoutingModule } from './crisis-center-routing.module';
 import { CrisisCenterComponent } from './crisis-center/crisis-center.component';
+import { CrisisDetailResolverService } from './crisis-detail-resolver.service';
 import { CrisisDetailComponent } from './crisis-detail/crisis-detail.component';
 import { CrisisListComponent } from './crisis-list/crisis-list.component';
+import { CrisisService } from './crisis.service';
 import { CRISES } from './mock-crises';
+
+@Injectable()
+class FakeCrisisService implements Partial<CrisisService> {
+  private crises$: BehaviorSubject<Crisis[]> = new BehaviorSubject<Crisis[]>(CRISES);
+
+  getCrises() {
+    return this.crises$;
+  }
+
+  getCrisis(id: number | string) {
+    return this.getCrises().pipe(
+      map(crises => crises.find(crisis => crisis.id === +id)),
+      observeOn(asapScheduler),
+    );
+  }
+}
+
+@Injectable()
+export class FakeCrisisDetailResolverService implements Resolve<Crisis> {
+  constructor(
+    private router: Router,
+    private ngZone: NgZone,
+  ) { }
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Crisis | undefined {
+    const id = route.paramMap.get('id');
+
+    const maybeCrisis = CRISES.find(crisis => crisis.id === +id);
+
+    if (maybeCrisis === undefined) {
+      this.ngZone.run(() => this.router.navigateByUrl('/'));
+    }
+
+    return maybeCrisis;
+  }
+}
 
 @Component({
   template: '<router-outlet></router-outlet>',
@@ -38,28 +76,6 @@ class TestRootComponent {
 
   getActiveComponent<T>(): T {
     return this.routerOutlet.component as T;
-  }
-}
-
-@Injectable({
-  providedIn: 'root',
-})
-export class FakeCrisisDetailResolverService implements Resolve<Crisis> {
-  constructor(
-    private router: Router,
-    private ngZone: NgZone,
-  ) { }
-
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Crisis | undefined {
-    const id = Number.parseInt(route.paramMap.get('id'), 10);
-
-    const maybeCrisis = CRISES.find(crisis => crisis.id === id);
-
-    if (maybeCrisis === undefined) {
-      this.ngZone.run(() => this.router.navigate(['/crisis-center']));
-    }
-
-    return maybeCrisis;
   }
 }
 
@@ -115,6 +131,10 @@ describe('Crisis center', () => {
             relativeLinkResolution: 'corrected',
           }),
       ],
+      providers: [
+        { provide: CrisisService, useClass: FakeCrisisService },
+        { provide: CrisisDetailResolverService, FakeCrisisDetailResolverService },
+      ],
     });
 
     await TestBed.compileComponents();
@@ -125,21 +145,6 @@ describe('Crisis center', () => {
   });
 
   beforeEach(fakeAsync(() => {
-    const routes = router.config;
-    const detailRoute: Route = findValueDeep(
-      routes,
-      (route: Route) => route.component === CrisisDetailComponent,
-      {
-        // checkCircular: false,
-        // leavesOnly: childrenPath!==undefined,
-        // pathFormat: 'string',
-        // includeRoot: !_.isArray(obj),
-        childrenPath: ['children'],
-        // rootIsChildren: !includeRoot && _.isArray(obj),
-      });
-    detailRoute.resolve.crisis = FakeCrisisDetailResolverService;
-    router.resetConfig(routes);
-
     rootFixture.ngZone.run(() => router.initialNavigation());
 
     advance();

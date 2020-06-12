@@ -1,5 +1,5 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, Injectable, ViewChild } from '@angular/core';
+import { Component, Injectable, NgZone, ViewChild } from '@angular/core';
 import {
   ComponentFixture,
   fakeAsync,
@@ -8,10 +8,16 @@ import {
 } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { Router, RouterOutlet } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  Resolve,
+  Router,
+  RouterOutlet,
+  RouterStateSnapshot,
+} from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { asapScheduler, BehaviorSubject } from 'rxjs';
+import { map, observeOn } from 'rxjs/operators';
 
 import { Crisis } from './crisis';
 import {
@@ -19,22 +25,11 @@ import {
 } from './crisis-center-home/crisis-center-home.component';
 import { CrisisCenterRoutingModule } from './crisis-center-routing.module';
 import { CrisisCenterComponent } from './crisis-center/crisis-center.component';
+import { CrisisDetailResolverService } from './crisis-detail-resolver.service';
 import { CrisisDetailComponent } from './crisis-detail/crisis-detail.component';
 import { CrisisListComponent } from './crisis-list/crisis-list.component';
 import { CrisisService } from './crisis.service';
 import { CRISES } from './mock-crises';
-
-@Component({
-  template: '<router-outlet></router-outlet>',
-})
-class TestRootComponent {
-  @ViewChild(RouterOutlet)
-  routerOutlet: RouterOutlet;
-
-  getActiveComponent<T>(): T {
-    return this.routerOutlet.component as T;
-  }
-}
 
 @Injectable()
 class FakeCrisisService implements Partial<CrisisService> {
@@ -45,13 +40,43 @@ class FakeCrisisService implements Partial<CrisisService> {
   }
 
   getCrisis(id: number | string) {
-    if (typeof id === 'string') {
-      id = Number.parseInt(id, 10);
+    return this.getCrises().pipe(
+      map(crises => crises.find(crisis => crisis.id === +id)),
+      observeOn(asapScheduler),
+    );
+  }
+}
+
+@Injectable()
+export class FakeCrisisDetailResolverService implements Resolve<Crisis> {
+  constructor(
+    private router: Router,
+    private ngZone: NgZone,
+    private crisisService: CrisisService,
+  ) { }
+
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Crisis | undefined {
+    const id = route.paramMap.get('id');
+
+    const maybeCrisis = CRISES.find(crisis => crisis.id === +id);
+
+    if (maybeCrisis === undefined) {
+      this.ngZone.run(() => this.router.navigate(['/']));
     }
 
-    return this.getCrises().pipe(
-      map(crises => crises.find(crisis => crisis.id === id)),
-    );
+    return maybeCrisis;
+  }
+}
+
+@Component({
+  template: '<router-outlet></router-outlet>',
+})
+class TestRootComponent {
+  @ViewChild(RouterOutlet)
+  routerOutlet: RouterOutlet;
+
+  getActiveComponent<T>(): T {
+    return this.routerOutlet.component as T;
   }
 }
 
@@ -107,6 +132,7 @@ describe('Crisis center', () => {
       ],
       providers: [
         { provide: CrisisService, useClass: FakeCrisisService },
+        { provide: CrisisDetailResolverService, useClass: FakeCrisisDetailResolverService },
       ],
     });
 
@@ -135,7 +161,7 @@ describe('Crisis center', () => {
     expect(getText('h3')).toContain(firstCrisis.name);
   }));
 
-  xit('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(() => {
+  it('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(() => {
     navigateById(0);
     advance();
 
