@@ -8,6 +8,7 @@ import {
   Route,
   Router,
   RouterStateSnapshot,
+  UrlSegment,
 } from '@angular/router';
 
 import { AuthService } from './auth.service';
@@ -37,7 +38,7 @@ export class AuthGuard implements CanActivate, CanActivateChild, CanLoad {
     return this.canActivate(route, state);
   }
 
-  canLoad(route: Route): boolean {
+  canLoad(route: Route, segments: UrlSegment[]): boolean {
     const url = `/${route.path}`;
 
     return this.checkLogin(url);
