@@ -46,15 +46,15 @@ describe('AuthGuard (isolated)', () => {
         expect(isAccessGranted).toBeTrue();
       });
 
-      describe('when routing', () => {
-        it('can activate a route', () => {
+      describe('and navigates to a guarded route configuration', () => {
+        it('grants route access', () => {
           const canActivate =
             guard.canActivate(dummyRoute, fakeRouterState(fakeUrl));
 
           expect(canActivate).toBeTrue();
         });
 
-        it('can activate a child route', () => {
+        it('grants child route access', () => {
           const canActivateChild =
             guard.canActivateChild(dummyRoute, fakeRouterState(fakeUrl));
 
@@ -64,7 +64,7 @@ describe('AuthGuard (isolated)', () => {
         const paths = fakeUrl.split('/').filter(path => path !== '');
 
         paths.forEach(path => {
-          it('can lazy load a feature module', () => {
+          it('grants feature access', () => {
             const fakeRoute: Route = { path };
             const fakeUrlSegment = { path } as UrlSegment;
 
@@ -128,15 +128,15 @@ describe('AuthGuard (isolated)', () => {
           }));
       });
 
-      describe('when routing', () => {
-        it('cannot activate a route', () => {
+      describe('and navigates to a guarded route configuration', () => {
+        it('rejects route access', () => {
           const canActivate =
             guard.canActivate(dummyRoute, fakeRouterState(fakeUrl));
 
           expect(canActivate).toBeFalse();
         });
 
-        it('cannot activate a child route', () => {
+        it('rejects child route access', () => {
           const canActivateChild =
             guard.canActivateChild(dummyRoute, fakeRouterState(fakeUrl));
 
@@ -146,7 +146,7 @@ describe('AuthGuard (isolated)', () => {
         const paths = fakeUrl.split('/').filter(path => path !== '');
 
         paths.forEach(path => {
-          it('cannot lazy load a feature module', () => {
+          it('rejects feature access', () => {
             const fakeRoute: Route = { path };
             const fakeUrlSegment = { path } as UrlSegment;
 
