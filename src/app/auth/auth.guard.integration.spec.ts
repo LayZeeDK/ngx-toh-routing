@@ -24,17 +24,17 @@ function parseUrl(url: string) {
 @Component({
   template: '',
 })
-class TestTargetComponent { }
+class TestLazyComponent { }
 
 @NgModule({
   declarations: [
-    TestTargetComponent,
+    TestLazyComponent,
   ],
   imports: [
     RouterModule.forChild([
       {
         path: '',
-        component: TestTargetComponent,
+        component: TestLazyComponent,
       },
     ]),
   ],
@@ -45,6 +45,11 @@ class TestFeatureModule { }
   template: '<router-outlet></router-outlet>',
 })
 class TestRootComponent { }
+
+@Component({
+  template: '',
+})
+class TestTargetComponent { }
 
 @Component({
   template: 'TestLoginComponent',
@@ -71,8 +76,9 @@ describe('AuthGuard#canLoad (integrated)', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       declarations: [
-        TestRootComponent,
         TestLoginComponent,
+        TestRootComponent,
+        TestTargetComponent,
       ],
       imports: [
         RouterTestingModule.withRoutes([
@@ -173,8 +179,8 @@ describe('AuthGuard#canActivate (integrated)', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       declarations: [
-        TestRootComponent,
         TestLoginComponent,
+        TestRootComponent,
         TestTargetComponent,
       ],
       imports: [
@@ -276,8 +282,8 @@ describe('AuthGuard#canActivateChild (integrated)', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       declarations: [
-        TestRootComponent,
         TestLoginComponent,
+        TestRootComponent,
         TestTargetComponent,
       ],
       imports: [
