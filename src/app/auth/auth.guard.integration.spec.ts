@@ -8,6 +8,19 @@ import { of } from 'rxjs';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
+function parseUrl(url: string) {
+  const urlPattern = /^(?<path>.*?)(\?(?<queryString>.*?))?(#(?<fragment>.*))?$/;
+  const { groups: { fragment = '', path, queryString = '' } } =
+    url.match(urlPattern);
+  const query = new URLSearchParams(queryString);
+
+  return {
+    fragment,
+    path,
+    query,
+  };
+}
+
 @Component({
   template: 'TestLazyComponent',
 })
@@ -90,6 +103,7 @@ describe('AuthGuard (integrated)', () => {
   });
 
   let fakeService: FakeAuthService;
+  const testUrl = '/lazy';
   let location: Location;
   let ngZone: NgZone;
   let rootFixture: ComponentFixture<TestRootComponent>;
@@ -103,7 +117,7 @@ describe('AuthGuard (integrated)', () => {
     describe('and navigates to a guarded feature', () => {
       beforeEach(async () => {
         await ngZone.run(async () =>
-          canNavigate = await router.navigateByUrl('/lazy'));
+          canNavigate = await router.navigateByUrl(testUrl));
       });
 
       let canNavigate: boolean;
@@ -113,7 +127,7 @@ describe('AuthGuard (integrated)', () => {
       });
 
       it('lazy loads a feature module', () => {
-        expect(location.path()).toBe('/lazy');
+        expect(location.path()).toBe(testUrl);
       });
     });
   });
@@ -122,7 +136,7 @@ describe('AuthGuard (integrated)', () => {
     describe('and navigates to a guarded feature', () => {
       beforeEach(async () => {
         await ngZone.run(async () =>
-          canNavigate = await router.navigateByUrl('/lazy'));
+          canNavigate = await router.navigateByUrl(testUrl));
       });
 
       let canNavigate: boolean;
@@ -132,9 +146,24 @@ describe('AuthGuard (integrated)', () => {
       });
 
       it('navigates to the login page', () => {
-        const url = location.path();
-        const [path] = url.split('?');
+        const { path } = parseUrl(location.path());
         expect(path).toBe('/login');
+      });
+
+      it('stores the redirect URL', () => {
+        expect(fakeService.redirectUrl).toBe(testUrl);
+      });
+
+      it('adds a token to the login URL', () => {
+        const expectedToken = 'anchor';
+        const { fragment } = parseUrl(location.path());
+        expect(fragment).toBe(expectedToken);
+      });
+
+      it('adds a session ID to the login URL', () => {
+        const { query } = parseUrl(location.path());
+        const sessionIdPattern = /^\d+$/;
+        expect(query.get('session_id')).toMatch(sessionIdPattern);
       });
     });
   });

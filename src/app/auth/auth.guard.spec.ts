@@ -89,7 +89,7 @@ describe('AuthGuard (isolated)', () => {
         expect(isAccessGranted).toBeFalse();
       });
 
-      it('stores the redirect route', () => {
+      it('stores the redirect URL', () => {
         guard.checkLogin(fakeUrl);
 
         expect(serviceStub.redirectUrl).toBe(fakeUrl);
