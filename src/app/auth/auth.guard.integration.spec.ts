@@ -21,7 +21,6 @@ function parseUrl(url: string) {
   };
 }
 
-
 function testRouteGuard({
   routes,
   testUrl,

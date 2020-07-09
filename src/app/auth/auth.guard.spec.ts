@@ -10,13 +10,13 @@ import {
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
-describe('AuthGuard (isolated)', () => {
-  function fakeRouterState(url: string): RouterStateSnapshot {
-    return {
-      url,
-    } as RouterStateSnapshot;
-  }
+function fakeRouterState(url: string): RouterStateSnapshot {
+  return {
+    url,
+  } as RouterStateSnapshot;
+}
 
+describe('AuthGuard (isolated)', () => {
   beforeEach(() => {
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
     serviceStub = {};
