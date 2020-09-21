@@ -1,6 +1,6 @@
 import { Location } from '@angular/common';
 import { Component, Injectable, NgModule, NgZone } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { Router, RouterModule, Routes } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { of } from 'rxjs';
@@ -10,8 +10,7 @@ import { AuthService } from './auth.service';
 
 function parseUrl(url: string) {
   const urlPattern = /^(?<path>.*?)(\?(?<queryString>.*?))?(#(?<fragment>.*))?$/;
-  const { groups: { fragment = '', path, queryString = '' } } =
-    url.match(urlPattern);
+  const { groups: { fragment = '', path, queryString = '' } } = url.match(urlPattern);
   const query = new URLSearchParams(queryString);
 
   return {
@@ -25,8 +24,8 @@ function testRouteGuard({
   routes,
   testUrl,
 }: {
-  routes: Routes,
-  testUrl: string,
+  routes: Routes;
+  testUrl: string;
 }) {
   describe('AuthGuard#canActivateChild (integrated)', () => {
     beforeEach(async () => {
@@ -38,11 +37,11 @@ function testRouteGuard({
         ],
         imports: [
           RouterTestingModule.withRoutes([
-            ...routes,
             {
               path: 'login',
               component: TestLoginComponent,
             },
+            ...routes,
           ]),
         ],
         providers: [
@@ -52,7 +51,7 @@ function testRouteGuard({
 
       await TestBed.compileComponents();
 
-      rootFixture = TestBed.createComponent(TestRootComponent);
+      TestBed.createComponent(TestRootComponent);
 
       location = TestBed.inject(Location);
       router = TestBed.inject(Router);
@@ -63,7 +62,6 @@ function testRouteGuard({
     let fakeService: FakeAuthService;
     let location: Location;
     let ngZone: NgZone;
-    let rootFixture: ComponentFixture<TestRootComponent>;
     let router: Router;
 
     describe('when the user is logged in', () => {
@@ -90,6 +88,10 @@ function testRouteGuard({
     });
 
     describe('when the user is logged out', () => {
+      beforeEach(() => {
+        fakeService.logout();
+      });
+
       describe('and navigates to a guarded feature', () => {
         beforeEach(async () => {
           await ngZone.run(async () =>
@@ -131,11 +133,8 @@ function testRouteGuard({
   template: '',
 })
 class TestLazyComponent { }
-
 @NgModule({
-  declarations: [
-    TestLazyComponent,
-  ],
+  declarations: [TestLazyComponent],
   imports: [
     RouterModule.forChild([
       {
@@ -158,14 +157,14 @@ class TestRootComponent { }
 class TestTargetComponent { }
 
 @Component({
-  template: 'TestLoginComponent',
+  template: '',
 })
 class TestLoginComponent { }
 
 @Injectable()
-class FakeAuthService implements Partial<AuthService> {
+class FakeAuthService implements AuthService {
   isLoggedIn = false;
-  redirectUrl;
+  redirectUrl: string;
 
   login() {
     this.isLoggedIn = true;
