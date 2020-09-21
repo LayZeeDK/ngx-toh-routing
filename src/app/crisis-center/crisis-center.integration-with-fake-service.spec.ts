@@ -132,6 +132,7 @@ describe('Crisis center', () => {
 
   beforeEach(fakeAsync(() => {
     rootFixture.ngZone.run(() => router.initialNavigation());
+
     advance();
   }));
 
