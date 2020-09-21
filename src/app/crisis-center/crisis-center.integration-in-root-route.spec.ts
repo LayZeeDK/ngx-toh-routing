@@ -1,18 +1,8 @@
 import { Location } from '@angular/common';
 import { Component, Injectable, NgZone, ViewChild } from '@angular/core';
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import {
-  ActivatedRouteSnapshot,
-  Router,
-  RouterOutlet,
-  RouterStateSnapshot,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterOutlet, RouterStateSnapshot } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { asapScheduler, BehaviorSubject } from 'rxjs';
 import { map, observeOn } from 'rxjs/operators';

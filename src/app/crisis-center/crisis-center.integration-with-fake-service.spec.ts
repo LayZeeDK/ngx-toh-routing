@@ -1,28 +1,15 @@
 import { CommonModule, Location } from '@angular/common';
 import { Component, Injectable, NgZone, ViewChild } from '@angular/core';
-import {
-  ComponentFixture,
-  fakeAsync,
-  TestBed,
-  tick,
-} from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import {
-  ActivatedRouteSnapshot,
-  Resolve,
-  Router,
-  RouterOutlet,
-  RouterStateSnapshot,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, Resolve, Router, RouterOutlet, RouterStateSnapshot } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { asapScheduler, BehaviorSubject } from 'rxjs';
 import { map, observeOn } from 'rxjs/operators';
 
 import { Crisis } from './crisis';
-import {
-  CrisisCenterHomeComponent,
-} from './crisis-center-home/crisis-center-home.component';
+import { CrisisCenterHomeComponent } from './crisis-center-home/crisis-center-home.component';
 import { CrisisCenterRoutingModule } from './crisis-center-routing.module';
 import { CrisisCenterComponent } from './crisis-center/crisis-center.component';
 import { CrisisDetailResolverService } from './crisis-detail-resolver.service';
