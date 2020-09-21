@@ -67,6 +67,19 @@ describe('Crisis center', () => {
     rootFixture.detectChanges();
   }
 
+  function clickButton(label: string) {
+    const button = rootFixture.debugElement.queryAll(By.css('button'))
+      .find(b => b.nativeElement.textContent.trim() === label);
+
+    rootFixture.ngZone.run(
+      () => button.triggerEventHandler('click', { button: 0 }));
+  }
+
+  function getText(query: string) {
+    return rootFixture.debugElement.query(By.css(query))
+      .nativeElement.textContent;
+  }
+
   function navigateById(id: number) {
     return rootFixture.ngZone.run(() => router.navigate([id]));
   }
@@ -105,13 +118,31 @@ describe('Crisis center', () => {
   let rootFixture: ComponentFixture<TestRootComponent>;
   let router: Router;
 
+  it('shows crisis detail when a valid ID is in the URL', fakeAsync(() => {
+    const [firstCrisis] = CRISES;
+
+    navigateById(firstCrisis.id);
+    advance();
+
+    expect(getText('h3')).toContain(firstCrisis.name);
+  }));
+
   it('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(() => {
     navigateById(0);
     advance();
 
-    const message =
-      rootFixture.debugElement.query(By.css('p'));
-    expect(message.nativeElement.textContent)
-      .toContain('Welcome to the Crisis Center');
+    expect(getText('p')).toContain('Welcome to the Crisis Center');
+  }));
+
+  it('navigates to the crisis center home when canceling crisis detail edit', fakeAsync(() => {
+    const [firstCrisis] = CRISES;
+    navigateById(firstCrisis.id);
+    advance();
+
+    clickButton('Cancel');
+    advance();
+
+    expect(location.path().startsWith('/')).toBeTrue();
+    expect(location.path()).toBe('/foobar');
   }));
 });

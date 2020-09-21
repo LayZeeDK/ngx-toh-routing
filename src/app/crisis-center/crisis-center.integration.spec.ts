@@ -166,5 +166,6 @@ describe('Crisis center', () => {
     advance();
 
     expect(location.path().startsWith('/crisis-center')).toBeTrue();
+    expect(location.path()).toBe('/foobar');
   }));
 });
