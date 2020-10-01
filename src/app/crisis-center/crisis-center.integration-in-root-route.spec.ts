@@ -79,7 +79,7 @@ describe('Crisis center', () => {
     expect(getText('p')).toContain('Welcome to the Crisis Center');
   }));
 
-  it('navigates to the crisis center home when canceling crisis detail edit', fakeAsync(() => {
+  it('navigates to the crisis center home when cancelling crisis detail edit', fakeAsync(() => {
     const { advance, clickButton, getTestUrl, navigateById } = setup({
       basePath,
       rootFixture,
