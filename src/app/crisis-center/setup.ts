@@ -46,7 +46,7 @@ export function setup<TFixture>({
       tick();
       rootFixture.detectChanges();
     },
-    clickButton(label: string) {
+    clickButton(label: string): void {
       const button = rootFixture.debugElement.queryAll(By.css('button'))
         .find(b => b.nativeElement.textContent.trim() === label);
 
@@ -58,11 +58,11 @@ export function setup<TFixture>({
         + '/'
         + stripLeadingCharacter('/', url.replace(/^\//, ''));
     },
-    getText(query: string) {
+    getText(query: string): string {
       return rootFixture.debugElement.query(By.css(query))
         .nativeElement.textContent;
     },
-    navigateById(id: number) {
+    navigateById(id: number): Promise<boolean> {
       return rootFixture.ngZone.run(() => router.navigate([basePath, id]));
     },
   };
