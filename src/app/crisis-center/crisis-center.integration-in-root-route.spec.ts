@@ -73,7 +73,7 @@ describe('Crisis center', () => {
       rootFixture,
       router,
     });
-    navigateById(0);
+    navigateById(Number.MAX_SAFE_INTEGER);
     advance();
 
     expect(getText('p')).toContain('Welcome to the Crisis Center');
@@ -85,13 +85,13 @@ describe('Crisis center', () => {
       rootFixture,
       router,
     });
-    const [firstCrisis] = CRISES;
-    navigateById(firstCrisis.id);
+    const [{ id }] = CRISES;
+    navigateById(id);
     advance();
 
     clickButton('Cancel');
     advance();
 
-    expect(location.path()).toBe(getTestUrl('/1;id=1;foo=foo'));
+    expect(location.path()).toBe(getTestUrl(`/${id};id=${id};foo=foo`));
   }));
 });
