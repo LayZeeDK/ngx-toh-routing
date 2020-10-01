@@ -2,7 +2,7 @@ import { Location } from '@angular/common';
 import { Provider, Type } from '@angular/core';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { NavigationExtras, Router } from '@angular/router';
+import { NavigationExtras, Router, UrlTree } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
 import { TestRootComponent } from './test-root.component';
@@ -73,6 +73,9 @@ export function featureTestSetup({
     navigate(commands: any[], extras?: NavigationExtras) {
       return rootFixture.ngZone.run(() => router.navigate(commands, extras));
     },
+    navigateByUrl(url: string | UrlTree, extras?: NavigationExtras) {
+      return rootFixture.ngZone.run(() => router.navigateByUrl(url, extras));
+    }
   };
 }
 

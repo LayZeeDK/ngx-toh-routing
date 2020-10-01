@@ -9,7 +9,7 @@ import { featureTestSetup } from './feature-test-setup';
 import { CRISES } from './mock-crises';
 
 describe('Crisis center', () => {
-  const { advance, clickButton, expectPathToBe, getText, navigate } = featureTestSetup({
+  const { advance, clickButton, expectPathToBe, getText, navigateByUrl } = featureTestSetup({
     featureModule: CrisisCenterModule,
     featurePath: 'crisis-center',
     providers: [
@@ -17,27 +17,29 @@ describe('Crisis center', () => {
       { provide: CrisisDetailResolverService, useClass: FakeCrisisDetailResolver },
     ]
   });
-  const navigateById = (id: number): Promise<boolean> => navigate([id]);
 
   it('shows crisis detail when a valid ID is in the URL', fakeAsync(() => {
     const [{ id, name }] = CRISES;
 
-    navigateById(id);
+    navigateByUrl(id.toString());
     advance();
 
     expect(getText('h3')).toContain(name);
   }));
 
-  it('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(() => {
-    navigateById(Number.MAX_SAFE_INTEGER);
+  it('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(async () => {
+    const invalidId = Number.MAX_SAFE_INTEGER;
+
+    const didNavigationSucceed = await navigateByUrl(invalidId.toString());
     advance();
 
+    expect(didNavigationSucceed).toBeFalse();
     expect(getText('p')).toContain('Welcome to the Crisis Center');
   }));
 
-  it('navigates to the crisis center home when cancelling crisis detail edit', fakeAsync(() => {
+  it('navigates to the crisis center home when cancelling crisis detail editing', fakeAsync(() => {
     const [{ id }] = CRISES;
-    navigateById(id);
+    navigateByUrl(id.toString());
     advance();
 
     clickButton('Cancel');
