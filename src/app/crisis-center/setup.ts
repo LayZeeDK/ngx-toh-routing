@@ -22,6 +22,14 @@ function patchRelativeRouterNavigation(router: Router): void {
     });
 }
 
+function stripLeadingCharacter(character: string, text: string): string {
+  return text.replace(new RegExp('^' + character), '');
+}
+
+function stripTrailingCharacter(character: string, text: string): string {
+  return text.replace(new RegExp(character + '$'), '');
+}
+
 export function setup<TFixture>({
   basePath,
   rootFixture,
@@ -44,6 +52,11 @@ export function setup<TFixture>({
 
       rootFixture.ngZone.run(
         () => button.triggerEventHandler('click', { button: 0 }));
+    },
+    getTestUrl(url: string): string {
+      return stripTrailingCharacter('/', router.serializeUrl(router.parseUrl(basePath)))
+        + '/'
+        + stripLeadingCharacter('/', url.replace(/^\//, ''));
     },
     getText(query: string) {
       return rootFixture.debugElement.query(By.css(query))

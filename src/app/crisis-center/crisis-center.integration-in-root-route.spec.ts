@@ -80,7 +80,7 @@ describe('Crisis center', () => {
   }));
 
   it('navigates to the crisis center home when canceling crisis detail edit', fakeAsync(() => {
-    const { advance, clickButton, navigateById } = setup({
+    const { advance, clickButton, getTestUrl, navigateById } = setup({
       basePath,
       rootFixture,
       router,
@@ -92,6 +92,6 @@ describe('Crisis center', () => {
     clickButton('Cancel');
     advance();
 
-    expect(location.path()).toBe('/1;id=1;foo=foo');
+    expect(location.path()).toBe(getTestUrl('/1;id=1;foo=foo'));
   }));
 });
