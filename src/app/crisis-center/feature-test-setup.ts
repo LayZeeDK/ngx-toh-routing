@@ -45,6 +45,12 @@ export function featureTestSetup({
   let rootFixture: ComponentFixture<TestRootComponent>;
   let router: Router;
 
+  const getTestUrl = (url: string): string => {
+    return stripTrailingCharacter('/', router.serializeUrl(router.parseUrl('')))
+      + '/'
+      + stripLeadingCharacter('/', url.replace(/^\//, ''));
+  };
+
   return {
     advance(): void {
       tick();
@@ -57,10 +63,8 @@ export function featureTestSetup({
       rootFixture.ngZone.run(
         () => button.triggerEventHandler('click', { button: 0 }));
     },
-    getTestUrl(url: string): string {
-      return stripTrailingCharacter('/', router.serializeUrl(router.parseUrl('')))
-        + '/'
-        + stripLeadingCharacter('/', url.replace(/^\//, ''));
+    expectPathToBe(url: string): void {
+      expect(location.path()).toBe(getTestUrl(url));
     },
     getText(query: string): string {
       return rootFixture.debugElement.query(By.css(query))

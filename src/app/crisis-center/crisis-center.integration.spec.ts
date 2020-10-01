@@ -9,7 +9,7 @@ import { featureTestSetup } from './feature-test-setup';
 import { CRISES } from './mock-crises';
 
 describe('Crisis center', () => {
-  const { advance, getText, navigate } = featureTestSetup({
+  const { advance, clickButton, expectPathToBe, getText, navigate } = featureTestSetup({
     featureModule: CrisisCenterModule,
     featurePath: 'crisis-center',
     providers: [
@@ -26,5 +26,23 @@ describe('Crisis center', () => {
     advance();
 
     expect(getText('h3')).toContain(name);
+  }));
+
+  it('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(() => {
+    navigateById(Number.MAX_SAFE_INTEGER);
+    advance();
+
+    expect(getText('p')).toContain('Welcome to the Crisis Center');
+  }));
+
+  it('navigates to the crisis center home when cancelling crisis detail edit', fakeAsync(() => {
+    const [{ id }] = CRISES;
+    navigateById(id);
+    advance();
+
+    clickButton('Cancel');
+    advance();
+
+    expectPathToBe(`/${id};id=${id};foo=foo`);
   }));
 });
