@@ -20,11 +20,11 @@ describe('Crisis center', () => {
   const navigateById = (id: number): Promise<boolean> => navigate([id]);
 
   it('shows crisis detail when a valid ID is in the URL', fakeAsync(() => {
-    const [firstCrisis] = CRISES;
+    const [{ id, name }] = CRISES;
 
-    navigateById(firstCrisis.id);
+    navigateById(id);
     advance();
 
-    expect(getText('h3')).toContain(firstCrisis.name);
+    expect(getText('h3')).toContain(name);
   }));
 });
