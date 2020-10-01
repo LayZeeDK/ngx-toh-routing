@@ -46,7 +46,7 @@ export function featureTestSetup({
   let router: Router;
 
   return {
-    advance() {
+    advance(): void {
       tick();
       rootFixture.detectChanges();
     },
@@ -66,8 +66,8 @@ export function featureTestSetup({
       return rootFixture.debugElement.query(By.css(query))
         .nativeElement.textContent;
     },
-    navigateById(id: number): Promise<boolean> {
-      return rootFixture.ngZone.run(() => router.navigate(['', id]));
+    navigate(commands: any[], extras?: NavigationExtras) {
+      return rootFixture.ngZone.run(() => router.navigate(commands, extras));
     },
   };
 }

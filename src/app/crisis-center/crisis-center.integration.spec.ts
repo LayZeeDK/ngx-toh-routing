@@ -9,7 +9,7 @@ import { featureTestSetup } from './feature-test-setup';
 import { CRISES } from './mock-crises';
 
 describe('Crisis center', () => {
-  const { advance, getText, navigateById } = featureTestSetup({
+  const { advance, getText, navigate } = featureTestSetup({
     featureModule: CrisisCenterModule,
     featurePath: 'crisis-center',
     providers: [
@@ -17,6 +17,7 @@ describe('Crisis center', () => {
       { provide: CrisisDetailResolverService, useClass: FakeCrisisDetailResolver },
     ]
   });
+  const navigateById = (id: number): Promise<boolean> => navigate([id]);
 
   it('shows crisis detail when a valid ID is in the URL', fakeAsync(() => {
     const [firstCrisis] = CRISES;
