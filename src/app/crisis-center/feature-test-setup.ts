@@ -81,22 +81,21 @@ export function featureTestSetup({
 
 function patchRelativeRouterNavigation(router: Router): void {
   const navigate = router.navigate.bind(router);
-  const isSpiedUpon = typeof (router.navigate as jasmine.Spy).and !== 'undefined';
+  const isNavigateASpy =
+    typeof (router.navigate as jasmine.Spy).and !== 'undefined';
 
-  if (isSpiedUpon) {
-    return;
+  if (!isNavigateASpy) {
+    spyOn(router, 'navigate').and.callFake(
+      (commands: any[], extras?: NavigationExtras): Promise<boolean> => {
+        const [firstCommand] = commands;
+
+        if (typeof firstCommand === 'string') {
+          commands[0] = firstCommand.replace(/^\.\./, '.');
+        }
+
+        return navigate(commands, extras);
+      });
   }
-
-  spyOn(router, 'navigate').and.callFake(
-    (commands: any[], extras?: NavigationExtras): Promise<boolean> => {
-      const [firstCommand] = commands;
-
-      if (typeof firstCommand === 'string') {
-        commands[0] = firstCommand.replace(/^\.\./, '.');
-      }
-
-      return navigate(commands, extras);
-    });
 }
 
 function stripLeadingCharacter(character: string, text: string): string {
