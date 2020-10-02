@@ -41,15 +41,15 @@ export function featureTestSetup({
     rootFixture.detectChanges();
   })));
 
-  let location: Location;
-  let rootFixture: ComponentFixture<TestRootComponent>;
-  let router: Router;
-
   const getTestUrl = (url: string): string => {
     return stripTrailingCharacter('/', router.serializeUrl(router.parseUrl('')))
       + '/'
       + stripLeadingCharacter('/', url.replace(/^\//, ''));
   };
+
+  let location: Location;
+  let rootFixture: ComponentFixture<TestRootComponent>;
+  let router: Router;
 
   return {
     advance(): void {
@@ -63,8 +63,14 @@ export function featureTestSetup({
       rootFixture.ngZone.run(
         () => button.triggerEventHandler('click', { button: 0 }));
     },
-    expectPathToBe(url: string): void {
-      expect(location.path()).toBe(getTestUrl(url));
+    enterTextInElement(query: string, text: string): void {
+      const input = rootFixture.debugElement.query(By.css(query));
+      const element = input.nativeElement as HTMLInputElement;
+      element.value = text;
+      input.triggerEventHandler('input', { target: element });
+    },
+    getPath(): string {
+      return getTestUrl(location.path())
     },
     getText(query: string): string {
       return rootFixture.debugElement.query(By.css(query))
@@ -79,23 +85,26 @@ export function featureTestSetup({
   };
 }
 
+function isSpy(fn: (...args: any[]) => unknown): boolean {
+  return typeof (fn as jasmine.Spy).and !== 'undefined';;
+}
+
 function patchRelativeRouterNavigation(router: Router): void {
-  const navigate = router.navigate.bind(router);
-  const isNavigateASpy =
-    typeof (router.navigate as jasmine.Spy).and !== 'undefined';
-
-  if (!isNavigateASpy) {
-    spyOn(router, 'navigate').and.callFake(
-      (commands: any[], extras?: NavigationExtras): Promise<boolean> => {
-        const [firstCommand] = commands;
-
-        if (typeof firstCommand === 'string') {
-          commands[0] = firstCommand.replace(/^\.\./, '.');
-        }
-
-        return navigate(commands, extras);
-      });
+  if (isSpy(router.navigate)) {
+    return;
   }
+
+  const navigate = router.navigate.bind(router);
+  spyOn(router, 'navigate').and.callFake(
+    (commands: any[], extras?: NavigationExtras): Promise<boolean> => {
+      const [firstCommand] = commands;
+
+      if (typeof firstCommand === 'string') {
+        commands[0] = firstCommand.replace(/^\.\./, '.');
+      }
+
+      return navigate(commands, extras);
+    });
 }
 
 function stripLeadingCharacter(character: string, text: string): string {
