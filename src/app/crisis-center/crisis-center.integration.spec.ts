@@ -11,7 +11,7 @@ import { FakeDialogService } from './fake-dialog.service';
 import { featureTestSetup } from './feature-test-setup';
 import { CRISES } from './mock-crises';
 
-type SpecDefinitions = (...args: any[]) => unknown;
+type SpecDefinitions = () => void;
 
 describe('Crisis center', () => {
   const fakeDialogService = new FakeDialogService();
