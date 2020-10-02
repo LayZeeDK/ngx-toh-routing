@@ -24,7 +24,7 @@ describe('Crisis center', () => {
       { provide: DialogService, useValue: fakeDialogService },
     ],
   });
-  const givenIAmEditingCrisisDetailsFor = (crisis: Crisis, spec: SpecDefinitions) => {
+  const Given_I_am_editing_crisis_details_for = (crisis: Crisis, spec: SpecDefinitions) => {
     describe(`Given I am editing crisis details for "${crisis.name}"`, () => {
       beforeEach(fakeAsync(() => {
         navigateByUrl(crisis.id.toString());
@@ -34,33 +34,33 @@ describe('Crisis center', () => {
       spec();
     });
   };
-  const givenTheCrisis = (crisis: Crisis, spec: SpecDefinitions) => {
+  const Given_the_crisis = (crisis: Crisis, spec: SpecDefinitions) => {
     describe(`Given the crisis "${crisis.name}"`, () => {
       spec();
     });
   };
-  const thenIAmAtCrisisCenterHome = () => {
+  const Then_I_am_at_crisis_center_home = () => {
     it('Then I am at crisis center home', () => {
       expect(getPath()).toBe('/');
       expect(getText('p')).toBe('Welcome to the Crisis Center');
     });
   };
-  const thenIAmAtCrisisDetails = (crisis: Crisis) => {
+  const Then_I_am_at_crisis_details = (crisis: Crisis) => {
     it('Then I am at crisis details', () => {
       expect(getPath()).toBe(`/${crisis.id}`);
     });
   };
-  const thenIAmAtCrisisListWithCrisisSelected = (crisis: Crisis) => {
+  const Then_I_am_at_crisis_list_with_crisis_selected = (crisis: Crisis) => {
     it('Then I am at crisis list with crisis selected', () => {
       expect(getPath()).toBe(`/${crisis.id};id=${crisis.id};foo=foo`);
     });
   };
-  const thenISeeCrisisDetailsFor = (name: string) => {
+  const Then_I_see_crisis_details_for = (name: string) => {
     it(`Then I see crisis details for "${name}"`, () => {
       expect(getText('h3')).toContain(name);
     });
   };
-  const whenICancelEditing = (spec: SpecDefinitions) => {
+  const When_I_cancel_editing = (spec: SpecDefinitions) => {
     describe('When I cancel editing', () => {
       beforeEach(fakeAsync(() => {
         clickButton('Cancel');
@@ -70,8 +70,8 @@ describe('Crisis center', () => {
       spec();
     });
   };
-  const whenIConfirm = (spec: SpecDefinitions) => {
-    describe('And I confirm', () => {
+  const When_I_confirm = (spec: SpecDefinitions) => {
+    describe('When I confirm', () => {
       beforeEach(fakeAsync(() => {
         fakeDialogService.clickOk();
         advance();
@@ -80,8 +80,8 @@ describe('Crisis center', () => {
       spec();
     });
   };
-  const whenIDoNotConfirm = (spec: SpecDefinitions) => {
-    describe('And I do not confirm', () => {
+  const When_I_do_not_confirm = (spec: SpecDefinitions) => {
+    describe('When I do not confirm', () => {
       beforeEach(fakeAsync(() => {
         fakeDialogService.clickCancel();
         advance();
@@ -90,7 +90,7 @@ describe('Crisis center', () => {
       spec();
     });
   };
-  const whenIEnterTheCrisisName = (name: string, spec: SpecDefinitions) => {
+  const When_I_enter_the_crisis_name = (name: string, spec: SpecDefinitions) => {
     describe(`When I enter the crisis name "${name}"`, () => {
       beforeEach(fakeAsync(() => {
         enterTextInElement('input', name);
@@ -100,7 +100,7 @@ describe('Crisis center', () => {
       spec();
     });
   };
-  const whenIOpenTheApplication = (spec: SpecDefinitions) => {
+  const When_I_open_the_application = (spec: SpecDefinitions) => {
     describe('When I open the application', () => {
       beforeEach(fakeAsync(() => {
         navigateByUrl('/');
@@ -111,29 +111,29 @@ describe('Crisis center', () => {
     });
   };
 
-  whenIOpenTheApplication(() => {
-    thenIAmAtCrisisCenterHome();
+  When_I_open_the_application(() => {
+    Then_I_am_at_crisis_center_home();
   });
 
   const [aCrisis] = CRISES;
-  givenTheCrisis(aCrisis, () => {
-    givenIAmEditingCrisisDetailsFor(aCrisis, () => {
-      thenISeeCrisisDetailsFor(aCrisis.name);
+  Given_the_crisis(aCrisis, () => {
+    Given_I_am_editing_crisis_details_for(aCrisis, () => {
+      Then_I_see_crisis_details_for(aCrisis.name);
 
-      whenICancelEditing(() => {
-        thenIAmAtCrisisListWithCrisisSelected(aCrisis);
+      When_I_cancel_editing(() => {
+        Then_I_am_at_crisis_list_with_crisis_selected(aCrisis);
       });
 
       const coralReefsAreDying = 'Coral reefs are dying';
-      whenIEnterTheCrisisName(coralReefsAreDying, () => {
-        whenICancelEditing(() => {
-          whenIDoNotConfirm(() => {
-            thenIAmAtCrisisDetails(aCrisis);
-            thenISeeCrisisDetailsFor(coralReefsAreDying);
+      When_I_enter_the_crisis_name(coralReefsAreDying, () => {
+        When_I_cancel_editing(() => {
+          When_I_do_not_confirm(() => {
+            Then_I_am_at_crisis_details(aCrisis);
+            Then_I_see_crisis_details_for(coralReefsAreDying);
           });
 
-          whenIConfirm(() => {
-            thenIAmAtCrisisListWithCrisisSelected(aCrisis);
+          When_I_confirm(() => {
+            Then_I_am_at_crisis_list_with_crisis_selected(aCrisis);
           });
         });
       });
@@ -144,11 +144,11 @@ describe('Crisis center', () => {
     id: Number.MAX_SAFE_INTEGER,
     name: 'Unknown crisis',
   };
-  givenTheCrisis(unknownCrisis, () => {
+  Given_the_crisis(unknownCrisis, () => {
     //   const didNavigationSucceed = await navigateByUrl(invalidId.toString());
     //   advance();
 
     //   expect(didNavigationSucceed).toBeFalse();
-    thenIAmAtCrisisCenterHome();
+    Then_I_am_at_crisis_center_home();
   });
 });
