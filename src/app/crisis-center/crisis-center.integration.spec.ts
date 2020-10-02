@@ -24,14 +24,19 @@ describe('Crisis center', () => {
       { provide: DialogService, useValue: fakeDialogService },
     ],
   });
-  const givenIAmEditingCrisisDetailsFor = (crisis: Crisis, fn: SpecDefinitions) => {
+  const givenIAmEditingCrisisDetailsFor = (crisis: Crisis, spec: SpecDefinitions) => {
     describe(`Given I am editing crisis details for "${crisis.name}"`, () => {
       beforeEach(fakeAsync(() => {
         navigateByUrl(crisis.id.toString());
         advance();
       }));
 
-      fn();
+      spec();
+    });
+  };
+  const givenTheCrisis = (crisis: Crisis, spec: SpecDefinitions) => {
+    describe(`Given the crisis "${crisis.name}"`, () => {
+      spec();
     });
   };
   const thenIAmAtCrisisCenterHome = () => {
@@ -55,59 +60,54 @@ describe('Crisis center', () => {
       expect(getText('h3')).toContain(name);
     });
   };
-  const whenICancelEditing = (fn: SpecDefinitions) => {
+  const whenICancelEditing = (spec: SpecDefinitions) => {
     describe('When I cancel editing', () => {
       beforeEach(fakeAsync(() => {
         clickButton('Cancel');
         advance();
       }));
 
-      fn();
+      spec();
     });
   };
-  const whenIConfirm = (fn: SpecDefinitions) => {
+  const whenIConfirm = (spec: SpecDefinitions) => {
     describe('And I confirm', () => {
       beforeEach(fakeAsync(() => {
         fakeDialogService.clickOk();
         advance();
       }));
 
-      fn();
+      spec();
     });
   };
-  const whenIDoNotConfirm = (fn: SpecDefinitions) => {
+  const whenIDoNotConfirm = (spec: SpecDefinitions) => {
     describe('And I do not confirm', () => {
       beforeEach(fakeAsync(() => {
         fakeDialogService.clickCancel();
         advance();
       }));
 
-      fn();
+      spec();
     });
   };
-  const whenIEnterTheCrisisName = (name: string, fn: SpecDefinitions) => {
+  const whenIEnterTheCrisisName = (name: string, spec: SpecDefinitions) => {
     describe(`When I enter the crisis name "${name}"`, () => {
       beforeEach(fakeAsync(() => {
         enterTextInElement('input', name);
         advance();
       }));
 
-      fn();
+      spec();
     });
   };
-  const whenIOpenTheApplication = (fn: SpecDefinitions) => {
+  const whenIOpenTheApplication = (spec: SpecDefinitions) => {
     describe('When I open the application', () => {
       beforeEach(fakeAsync(() => {
         navigateByUrl('/');
         advance();
       }));
 
-      fn();
-    });
-  };
-  const givenTheCrisis = (crisis: Crisis, fn: SpecDefinitions) => {
-    describe(`Given the crisis "${crisis.name}"`, () => {
-      fn();
+      spec();
     });
   };
 
