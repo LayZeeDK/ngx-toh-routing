@@ -51,7 +51,7 @@ describe('Crisis center', () => {
     });
   };
   const thenIAmAtCrisisListWithCrisisSelected = (crisis: Crisis) => {
-    it('Then I am at crisi list with crisis selected', () => {
+    it('Then I am at crisis list with crisis selected', () => {
       expect(getPath()).toBe(`/${crisis.id};id=${crisis.id};foo=foo`);
     });
   };
