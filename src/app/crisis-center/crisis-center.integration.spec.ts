@@ -9,7 +9,7 @@ import { featureTestSetup } from './feature-test-setup';
 import { CRISES } from './mock-crises';
 
 describe('Crisis center', () => {
-  const { advance, clickButton, expectPathToBe, getText, navigateByUrl } = featureTestSetup({
+  const { advance, clickButton, getPath, getText, navigateByUrl } = featureTestSetup({
     featureModule: CrisisCenterModule,
     featurePath: 'crisis-center',
     providers: [
@@ -45,6 +45,6 @@ describe('Crisis center', () => {
     clickButton('Cancel');
     advance();
 
-    expectPathToBe(`/${id};id=${id};foo=foo`);
+    expect(getPath()).toBe(`/${id};id=${id};foo=foo`);
   }));
 });
