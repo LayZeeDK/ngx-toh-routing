@@ -67,7 +67,9 @@ export function featureTestSetup({
       const input = rootFixture.debugElement.query(By.css(query));
       const element = input.nativeElement as HTMLInputElement;
       element.value = text;
-      input.triggerEventHandler('input', { target: element });
+
+      rootFixture.ngZone.run(() =>
+        input.triggerEventHandler('input', { target: element }));
     },
     getPath(): string {
       return getTestUrl(location.path())
