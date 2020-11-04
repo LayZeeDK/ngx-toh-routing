@@ -7,6 +7,7 @@ import { FakeCrisisDetailResolver } from './fake-crisis-detail.resolver';
 import { FakeCrisisService } from './fake-crisis.service';
 import { featureTestSetup } from './feature-test-setup';
 import { CRISES } from './mock-crises';
+import { Crisis } from './crisis';
 
 describe('Crisis center', () => {
   const { advance, clickButton, getPath, getText, navigateByUrl } = featureTestSetup({
@@ -18,19 +19,21 @@ describe('Crisis center', () => {
     ]
   });
 
-  it('shows crisis detail when a valid ID is in the URL', fakeAsync(() => {
-    const [{ id, name }] = CRISES;
+  const [aCrisis] = CRISES;
+  const unknownCrisis: Crisis = {
+    id: Number.MAX_SAFE_INTEGER,
+    name: 'Unknown crisis',
+  };
 
-    navigateByUrl(id.toString());
+  it('shows crisis detail when a valid ID is in the URL', fakeAsync(() => {
+    navigateByUrl(aCrisis.id.toString());
     advance();
 
-    expect(getText('h3')).toContain(name);
+    expect(getText('h3')).toContain(aCrisis.name);
   }));
 
   it('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(async () => {
-    const invalidId = Number.MAX_SAFE_INTEGER;
-
-    const didNavigationSucceed = await navigateByUrl(invalidId.toString());
+    const didNavigationSucceed = await navigateByUrl(unknownCrisis.id.toString());
     advance();
 
     expect(didNavigationSucceed).toBeFalse();
@@ -38,13 +41,12 @@ describe('Crisis center', () => {
   }));
 
   it('navigates to the crisis center home when cancelling crisis detail editing', fakeAsync(() => {
-    const [{ id }] = CRISES;
-    navigateByUrl(id.toString());
+    navigateByUrl(aCrisis.id.toString());
     advance();
 
     clickButton('Cancel');
     advance();
 
-    expect(getPath()).toBe(`/${id};id=${id};foo=foo`);
+    expect(getPath()).toBe(`/${aCrisis.id};id=${aCrisis.id};foo=foo`);
   }));
 });
