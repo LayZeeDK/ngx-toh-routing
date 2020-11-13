@@ -76,8 +76,11 @@ export function setUpFeatureTest({
         input.triggerEventHandler('input', { target: element }));
     },
     getPath(): string {
-      return ensureLeadingCharacter('/',
-        stripLeadingCharacter('/' + featurePath, location.path()));
+      const path = location.path();
+
+      return path === '/'
+        ? path
+        : stripLeadingCharacter('/', stripLeadingCharacter('/' + featurePath, path));
     },
     getText(query: string): string {
       return rootFixture.debugElement.query(By.css(query))

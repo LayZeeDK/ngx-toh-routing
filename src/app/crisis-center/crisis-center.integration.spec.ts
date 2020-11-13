@@ -33,7 +33,7 @@ describe('Crisis center', () => {
   const newCrisisName = 'Coral reefs are dying';
 
   it('starts at the crisis center home', fakeAsync(() => {
-    navigateByUrl('/');
+    navigateByUrl('');
     advance();
 
     expect(getText('p')).toBe('Welcome to the Crisis Center');
@@ -62,7 +62,7 @@ describe('Crisis center', () => {
       clickButton('Cancel');
       advance();
 
-      expect(getPath()).toBe(`/;id=${aCrisis.id};foo=foo`);
+      expect(getPath()).toBe(`;id=${aCrisis.id};foo=foo`);
     }));
 
     describe('Editing crisis name', () => {
@@ -80,20 +80,20 @@ describe('Crisis center', () => {
         }));
 
         it('navigates to the crisis list with the crisis selected when discarding unsaved changes is confirmed', fakeAsync(() => {
-          expect(getPath()).toBe(`/${aCrisis.id}`);
+          expect(getPath()).toBe(aCrisis.id.toString());
           fakeDialog.clickOk();
           advance();
 
-          expect(getPath()).toBe(`/;id=${aCrisis.id};foo=foo`);
+          expect(getPath()).toBe(`;id=${aCrisis.id};foo=foo`);
           expect(getText('p')).toBe('Welcome to the Crisis Center');
         }));
 
         it('keeps the change and stays on the crisis detail when discarding unsaved changes is canceled', fakeAsync(() => {
-          expect(getPath()).toBe(`/${aCrisis.id}`);
+          expect(getPath()).toBe(aCrisis.id.toString());
           fakeDialog.clickCancel();
           advance();
 
-          expect(getPath()).toBe(`/${aCrisis.id}`);
+          expect(getPath()).toBe(aCrisis.id.toString());
           expect(getText('h3')).toBe(`"${newCrisisName}"`);
         }));
       });
