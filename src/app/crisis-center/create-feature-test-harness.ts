@@ -8,7 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { ensureLeadingCharacter, stripLeadingCharacter } from './text-utilities';
 import { TestRootComponent } from './test-root.component';
 
-export function setUpFeatureTest({
+export function createFeatureTestHarness({
   featureModule,
   featurePath,
   providers = [],

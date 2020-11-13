@@ -3,14 +3,14 @@ import { fakeAsync, TestBed } from '@angular/core/testing';
 import { CrisisCenterModule } from './crisis-center.module';
 import { CrisisService } from './crisis.service';
 import { FakeCrisisService } from './fake-crisis.service';
-import { setUpFeatureTest } from './set-up-feature-test';
+import { createFeatureTestHarness } from './create-feature-test-harness';
 import { CRISES } from './mock-crises';
 import { Crisis } from './crisis';
 import { DialogService } from '../dialog.service';
 import { FakeDialogService } from './fake-dialog.service';
 
 describe('Crisis center', () => {
-  const { advance, clickButton, enterTextInElement, getPath, getText, navigateByUrl } = setUpFeatureTest({
+  const { advance, clickButton, enterTextInElement, getPath, getText, navigateByUrl } = createFeatureTestHarness({
     featureModule: CrisisCenterModule,
     featurePath: 'crisis-center',
     providers: [
