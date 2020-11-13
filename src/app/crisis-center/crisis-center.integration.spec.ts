@@ -1,23 +1,20 @@
 import { fakeAsync, TestBed } from '@angular/core/testing';
 
 import { CrisisCenterModule } from './crisis-center.module';
-import { CrisisDetailResolverService } from './crisis-detail-resolver.service';
 import { CrisisService } from './crisis.service';
-import { FakeCrisisDetailResolver } from './fake-crisis-detail.resolver';
 import { FakeCrisisService } from './fake-crisis.service';
-import { featureTestSetup } from './feature-test-setup';
+import { setUpFeatureTest } from './set-up-feature-test';
 import { CRISES } from './mock-crises';
 import { Crisis } from './crisis';
 import { DialogService } from '../dialog.service';
 import { FakeDialogService } from './fake-dialog.service';
 
 describe('Crisis center', () => {
-  const { advance, clickButton, enterTextInElement, getPath, getText, navigateByUrl } = featureTestSetup({
+  const { advance, clickButton, enterTextInElement, getPath, getText, navigateByUrl } = setUpFeatureTest({
     featureModule: CrisisCenterModule,
     featurePath: 'crisis-center',
     providers: [
       { provide: CrisisService, useClass: FakeCrisisService },
-      { provide: CrisisDetailResolverService, useClass: FakeCrisisDetailResolver },
       { provide: DialogService, useClass: FakeDialogService },
     ],
   });
@@ -65,7 +62,7 @@ describe('Crisis center', () => {
       clickButton('Cancel');
       advance();
 
-      expect(getPath()).toBe(`/${aCrisis.id};id=${aCrisis.id};foo=foo`);
+      expect(getPath()).toBe(`/;id=${aCrisis.id};foo=foo`);
     }));
 
     describe('Editing crisis name', () => {
@@ -87,10 +84,7 @@ describe('Crisis center', () => {
           fakeDialog.clickOk();
           advance();
 
-          // TODO: handle relative URLs with no feature path prefix in featureTestSetup
-          // or add feature path prefix in featureTestSetup and add it in navigate
-          // and navigateByUrl functions
-          expect(getPath()).toBe(`/${aCrisis.id};id=${aCrisis.id};foo=foo`);
+          expect(getPath()).toBe(`/;id=${aCrisis.id};foo=foo`);
           expect(getText('p')).toBe('Welcome to the Crisis Center');
         }));
 
