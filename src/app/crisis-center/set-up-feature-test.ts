@@ -17,7 +17,7 @@ export function setUpFeatureTest({
   featurePath: string,
   providers?: Provider[] | Array<Provider | Provider[]>,
 }) {
-  beforeEach(fakeAsync((async () => {
+  beforeEach(fakeAsync((() => {
     TestBed.configureTestingModule({
       declarations: [
         TestRootComponent,
@@ -37,11 +37,7 @@ export function setUpFeatureTest({
     router = TestBed.inject(Router);
     location = TestBed.inject(Location);
 
-    await rootFixture.ngZone.run(() => {
-      router.initialNavigation();
-
-      return router.navigateByUrl(`/${featurePath}`);
-    });
+    rootFixture.ngZone.run(() => router.initialNavigation());
     tick();
     rootFixture.detectChanges();
   })));
