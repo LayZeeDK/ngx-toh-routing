@@ -5,8 +5,8 @@ import { By } from '@angular/platform-browser';
 import { NavigationExtras, Router, UrlTree } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { ensureLeadingCharacter, stripLeadingCharacter } from './text-utilities';
 import { TestRootComponent } from './test-root.component';
+import { ensureLeadingCharacter, stripLeadingCharacter } from './text-utilities';
 
 export function createFeatureTestHarness({
   featureModule,
@@ -79,8 +79,10 @@ export function createFeatureTestHarness({
         : stripLeadingCharacter('/', stripLeadingCharacter('/' + featurePath, path));
     },
     getText(query: string): string {
-      return rootFixture.debugElement.query(By.css(query))
-        .nativeElement.textContent;
+      return (rootFixture
+        .debugElement
+        .query(By.css(query)).nativeElement as Element)
+          .textContent.trim();
     },
     navigate(commands: any[], extras?: NavigationExtras): Promise<boolean> {
       commands = [featurePath, ...commands];
