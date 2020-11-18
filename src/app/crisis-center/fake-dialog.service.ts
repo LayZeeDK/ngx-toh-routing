@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { take, finalize, tap } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 
 import { DialogService } from '../dialog.service';
 
@@ -19,10 +19,6 @@ export class FakeDialogService implements DialogService {
   confirm(message?: string): Observable<boolean> {
     return this.userConfirms.pipe(
       take(1),
-      tap({
-        next: n => console.log('confirm', n),
-        error: e => console.log('confirm error', e),
-      }),
     );
   }
 }
