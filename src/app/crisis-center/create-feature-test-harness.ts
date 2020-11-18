@@ -65,7 +65,7 @@ export function createFeatureTestHarness({
     },
     enterTextInElement(query: string, text: string): void {
       const input = rootFixture.debugElement.query(By.css(query));
-      const element = input.nativeElement as HTMLInputElement;
+      const element = input.nativeElement as HTMLInputElement | HTMLTextAreaElement;
       element.value = text;
 
       rootFixture.ngZone.run(() =>
