@@ -19,6 +19,15 @@ describe('Crisis center', () => {
     ],
   });
 
+  const expectCrisisToBeSelected = (crisis: Crisis) =>
+    expect(getText('.selected')).toBe(`${crisis.id}${crisis.name}`);
+  const expectToBeAtTheCrisisCenterHome = () =>
+    expect(getText('p')).toBe('Welcome to the Crisis Center');
+  const expectToBeEditing = (crisis: Crisis) => {
+    expect(getPath()).toMatch(new RegExp(`^${crisis.id}\$|^${crisis.id}.+|\/${crisis.id}\$`));
+    expect(getText('h3')).toContain(crisis.name);
+  }
+
   beforeEach(() => {
     fakeDialog = TestBed.inject(DialogService) as FakeDialogService;
   });
@@ -36,7 +45,7 @@ describe('Crisis center', () => {
     navigateByUrl('');
     advance();
 
-    expect(getText('p')).toBe('Welcome to the Crisis Center');
+    expectToBeAtTheCrisisCenterHome();
   }));
 
   describe('Crisis detail', () => {
@@ -44,7 +53,7 @@ describe('Crisis center', () => {
       navigateByUrl(aCrisis.id.toString());
       advance();
 
-      expect(getText('h3')).toContain(aCrisis.name);
+      expectToBeEditing(aCrisis);
     }));
 
     it('navigates to the crisis center home when an invalid ID is in the URL', fakeAsync(async () => {
@@ -52,17 +61,7 @@ describe('Crisis center', () => {
       advance();
 
       expect(didNavigationSucceed).toBeFalse();
-      expect(getText('p')).toContain('Welcome to the Crisis Center');
-    }));
-
-    it('navigates to the crisis center home when cancelling crisis detail editing', fakeAsync(() => {
-      navigateByUrl(aCrisis.id.toString());
-      advance();
-
-      clickButton('Cancel');
-      advance();
-
-      expect(getPath()).toBe(`;id=${aCrisis.id};foo=foo`);
+      expectToBeAtTheCrisisCenterHome();
     }));
 
     describe('Editing crisis name', () => {
@@ -73,28 +72,43 @@ describe('Crisis center', () => {
         enterTextInElement('input', newCrisisName);
       }));
 
-      describe('Canceling crisis editing', () => {
+      describe('Canceling change', () => {
         beforeEach(fakeAsync(() => {
           clickButton('Cancel');
           advance();
         }));
 
-        it('navigates to the crisis list with the crisis selected when discarding unsaved changes is confirmed', fakeAsync(() => {
-          expect(getPath()).toBe(aCrisis.id.toString());
-          fakeDialog.clickOk();
-          advance();
+        describe('When discarding unsaved changes is confirmed', () => {
+          beforeEach(fakeAsync(() => {
+            fakeDialog.clickOk();
+            advance();
+          }));
 
-          expect(getPath()).toBe(`;id=${aCrisis.id};foo=foo`);
-          expect(getText('p')).toBe('Welcome to the Crisis Center');
-        }));
+          it('navigates to the crisis center home with the crisis selected ', () => {
+            expectToBeAtTheCrisisCenterHome();
+            expectCrisisToBeSelected(aCrisis);
+          });
+
+          it('adds matrix parameters', () => {
+            expect(getPath()).toMatch(new RegExp(`;id=${aCrisis.id};foo=foo`));
+          });
+        });
 
         it('keeps the change and stays on the crisis detail when discarding unsaved changes is canceled', fakeAsync(() => {
-          expect(getPath()).toBe(aCrisis.id.toString());
           fakeDialog.clickCancel();
           advance();
 
-          expect(getPath()).toBe(aCrisis.id.toString());
-          expect(getText('h3')).toBe(`"${newCrisisName}"`);
+          expectToBeEditing({ id: aCrisis.id, name: newCrisisName });
+        }));
+      });
+
+      describe('Saving change', () => {
+        it('navigates to the crisis center home with the crisis selected', fakeAsync(() => {
+          clickButton('Save');
+          advance();
+
+          expectToBeAtTheCrisisCenterHome();
+          expectCrisisToBeSelected({ id: aCrisis.id, name: newCrisisName });
         }));
       });
     });
