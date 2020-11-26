@@ -10,17 +10,22 @@ module.exports = function (config) {
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage-istanbul-reporter'),
-      require('@angular-devkit/build-angular/plugins/karma')
+      require('@angular-devkit/build-angular/plugins/karma'),
+      require('karma-jasmine-order-reporter'),
     ],
     client: {
-      clearContext: false // leave Jasmine Spec Runner output visible in browser
+      clearContext: false, // leave Jasmine Spec Runner output visible in browser,
+      jasmine: {
+        random: true,
+        seed: process.env['JASMINE_SEED'],
+      },
     },
     coverageIstanbulReporter: {
       dir: require('path').join(__dirname, './coverage/ngx-toh-routing'),
       reports: ['html', 'lcovonly', 'text-summary'],
       fixWebpackSourcePaths: true
     },
-    reporters: ['progress', 'kjhtml'],
+    reporters: ['progress', 'kjhtml', 'jasmine-order'],
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
